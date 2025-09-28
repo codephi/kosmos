@@ -2550,6 +2550,7 @@ name = "kosmo"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "rand",
 ]
 
 [[package]]

@@ -5,3 +5,12 @@ edition = "2024"
 
 [dependencies]
 bevy = "0.16.1"
+rand = "0.8"
+
+[[bin]]
+name = "kosmo"
+path = "src/main.rs"
+
+[[bin]]
+name = "kosmo-gpu"
+path = "src/main_gpu.rs"
