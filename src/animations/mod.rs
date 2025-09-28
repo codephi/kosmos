@@ -1,59 +1,42 @@
-//! Módulo de Animações
+//! Módulo de Animações para Kosmos
 //! 
-//! Sistema de animações inspirado no Framer Motion para animar geometrias no Bevy.
+//! Fornece um sistema completo de animação baseado em timeline para geometrias 2D no Bevy.
 //! 
 //! # Exemplo de uso:
 //! ```rust
-//! use animations::prelude::*;
+//! use animations::{AnimationTimeline, AnimationBuilder, Easing};
 //! 
-//! Motion::new()
-//!     .from(MotionState::position(0.0, 0.0))
-//!     .to(MotionState::position(100.0, 100.0))
-//!     .duration(2.0)
-//!     .easing(Easing::EaseInOut)
-//!     .spawn(&mut commands, entity);
+//! // Criar uma animação com timeline
+//! let animation = AnimationBuilder::new()
+//!     .move_to(Vec2::new(100.0, 0.0), 1.0, Easing::EaseInOut)
+//!     .rotate_to(90.0_f32.to_radians(), 0.5, Easing::Linear)
+//!     .scale_to(Vec2::splat(2.0), 1.5, Easing::EaseOut)
+//!     .color_to(Color::srgb(1.0, 0.0, 0.0), 1.0, Easing::EaseIn)
+//!     .build();
 //! ```
 
-mod components;
-mod systems;
-mod easing;
+mod timeline;
+mod keyframe;
+mod animation_system;
 mod builder;
+mod easing;
 
-pub use components::*;
-pub use systems::*;
-pub use easing::*;
-pub use builder::*;
+// Re-exportar tipos públicos
+pub use timeline::{AnimationTimeline, AnimationState, AnimationMode};
+pub use keyframe::{Keyframe, AnimatableProperty};
+pub use animation_system::{AnimationPlugin, AnimationComponent};
+pub use builder::{AnimationBuilder, AnimationPresets};
+pub use easing::Easing;
 
-use bevy::prelude::*;
-
-/// Plugin principal de animações
-pub struct AnimationsPlugin;
-
-impl Plugin for AnimationsPlugin {
-    fn build(&self, app: &mut App) {
-        app
-            .add_systems(Update, (
-                update_animations,
-                update_transform_animations,
-                update_color_animations,
-                update_scale_animations,
-                update_rotation_animations,
-                cleanup_finished_animations,
-            ).chain());
-    }
-}
-
+// Re-exportar um prelude para facilitar imports
 pub mod prelude {
     pub use super::{
-        AnimationsPlugin,
-        Motion,
-        MotionState,
+        AnimationTimeline,
+        AnimationMode,
         AnimationComponent,
+        AnimationBuilder,
+        AnimationPresets,
         Easing,
-        AnimationStatus,
-        TransformAnimation,
-        ColorAnimation,
-        ScaleAnimation,
-        RotationAnimation,
+        AnimatableProperty,
     };
 }
