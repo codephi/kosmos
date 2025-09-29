@@ -5,9 +5,7 @@ use bevy::render::render_asset::RenderAssetUsages;
 mod geometrics;
 
 mod animations;
-use animations::{
-    AnimatableProperty, AnimationBuilder, AnimationComponent, Easing,
-};
+use animations::{AnimatableProperty, AnimationBuilder, AnimationComponent, Easing};
 
 fn main() {
     App::new()
@@ -55,15 +53,15 @@ fn setup(
     let square_vertices = create_square_vertices(num_points, 90.0);
     let triangle_vertices = create_triangle_vertices(num_points, 100.0);
     let circle_vertices = create_circle_vertices(num_points, 80.0);
-    let star_vertices = create_star_vertices(80.0, 35.0);
-    let cloud_vertices = create_cloud_vertices(num_points, 80.0);
+    let star_vertices = create_star_vertices(num_points, 80.0, 35.0);
+    let flower_vertices = create_flower_vertices(num_points, 80.0);
 
     let shapes = vec![
         square_vertices.clone(), // Começa com quadrado
+        flower_vertices,
         triangle_vertices,
         circle_vertices,
         star_vertices,
-        cloud_vertices,
     ];
 
     // Cores para cada forma
@@ -72,7 +70,7 @@ fn setup(
         Color::srgb(0.2, 1.0, 0.3), // Verde para triângulo
         Color::srgb(0.2, 0.5, 1.0), // Azul para círculo
         Color::srgb(1.0, 1.0, 0.0), // Amarelo para estrela
-        Color::srgb(0.9, 0.9, 1.0), // Branco-azulado para nuvem
+        Color::srgb(1.0, 0.4, 0.7), // Rosa para flor
     ];
 
     // Começa com a mesh do quadrado
@@ -204,7 +202,7 @@ fn setup(
     println!("2. Triângulo (verde)");
     println!("3. Círculo (azul)");
     println!("4. Estrela (amarelo)");
-    println!("5. Nuvem (branco-azulado)");
+    println!("5. Flor (rosa)");
     println!("\nEstrela estática (dourada) à direita - exemplo Bevy");
     println!("\nControles:");
     println!("ESPAÇO - Pausar/Retomar");
@@ -391,14 +389,14 @@ fn create_triangle_vertices(num_points: usize, size: f32) -> Vec<Vec2> {
     vertices
 }
 
-fn create_star_vertices(outer_radius: f32, inner_radius: f32) -> Vec<Vec2> {
+fn create_star_vertices(num_points: usize, outer_radius: f32, inner_radius: f32) -> Vec<Vec2> {
     let mut vertices = Vec::new();
 
     // Centro da estrela
     vertices.push(Vec2::ZERO);
 
     // Criar 10 vértices da estrela (5 externos + 5 internos intercalados)
-    for i in 0..10 {
+    for i in 0..num_points {
         // O ângulo entre cada vértice é 1/10 de uma rotação completa
         let angle = i as f32 * std::f32::consts::PI / 5.0;
 
@@ -417,23 +415,50 @@ fn create_star_vertices(outer_radius: f32, inner_radius: f32) -> Vec<Vec2> {
     vertices
 }
 
-fn create_cloud_vertices(num_points: usize, size: f32) -> Vec<Vec2> {
+fn create_flower_vertices(num_points: usize, size: f32) -> Vec<Vec2> {
     let mut vertices = Vec::new();
+
+    // Criar flor com 6 pétalas
+    let num_petals = 6;
+    let petal_width = std::f32::consts::TAU / num_petals as f32;
 
     for i in 0..num_points {
         let t = i as f32 / num_points as f32;
         let angle = t * std::f32::consts::TAU;
 
-        // Criar forma de nuvem usando combinação de senos
-        let r = size * (0.8 + 0.3 * (angle * 3.0).sin() + 0.2 * (angle * 5.0).sin());
+        // Determinar em qual pétala estamos
+        let petal_angle = angle % petal_width;
+        let petal_center_offset = petal_width / 2.0;
 
-        vertices.push(Vec2::new(angle.cos() * r, angle.sin() * r * 0.7)); // Achatada verticalmente
+        // Distância do centro da pétala atual
+        let distance_from_petal_center = (petal_angle - petal_center_offset).abs();
+
+        // Criar formato de pétala usando função senoidal
+        let petal_factor = (1.0 - distance_from_petal_center / petal_center_offset).max(0.0);
+        let petal_shape = (petal_factor * std::f32::consts::PI).sin();
+
+        // Raio base da flor (centro menor)
+        let base_radius = size * 0.25;
+
+        // Extensão da pétala
+        let petal_extension = petal_shape * size * 0.6;
+
+        // Raio final
+        let final_radius = base_radius + petal_extension;
+
+        // Adicionar pequena variação para tornar mais orgânico
+        let organic_variation = (angle * 15.0).sin() * size * 0.03;
+        let total_radius = final_radius + organic_variation;
+
+        // Calcular posição final
+        let x = angle.cos() * total_radius;
+        let y = angle.sin() * total_radius;
+
+        vertices.push(Vec2::new(x, y));
     }
 
     vertices
-}
-
-// Função para criar mesh a partir de vértices
+} // Função para criar mesh a partir de vértices
 fn create_morphing_mesh(vertices: Vec<Vec2>) -> Mesh {
     let positions: Vec<[f32; 3]> = vertices.iter().map(|v| [v.x, v.y, 0.0]).collect();
 
