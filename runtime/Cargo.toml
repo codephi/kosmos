@@ -1,8 +1,8 @@
 [package]
 name = "runtime"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-framework = { path = "../framework" }
+kosmos_framework = { path = "../framework" }
 bevy = { workspace = true }

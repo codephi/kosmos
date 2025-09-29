@@ -1,5 +1,6 @@
 [workspace]
 members = ["framework", "runtime"]
+resolver = "2"
 
 [profile.dev]
 opt-level = 1
