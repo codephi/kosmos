@@ -1,16 +1,12 @@
-[package]
-name = "kosmo"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["framework", "runtime"]
 
-[dependencies]
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[workspace.dependencies]
 bevy = "0.16.1"
-rand = "0.8"
-
-[[bin]]
-name = "kosmo"
-path = "src/main.rs"
-
-[[bin]]
-name = "kosmo-gpu"
-path = "src/main_gpu.rs"
+rand = "0.9.2"

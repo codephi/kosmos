@@ -1,10 +1,9 @@
+pub use bevy;
 use bevy::prelude::*;
 use bevy::render::mesh::{Indices, Mesh, PrimitiveTopology};
 use bevy::render::render_asset::RenderAssetUsages;
-
-mod geometrics;
-
-mod animations;
+pub mod animations;
+pub mod geometrics;
 use animations::{AnimatableProperty, AnimationBuilder, AnimationComponent, Easing};
 
 fn main() {
